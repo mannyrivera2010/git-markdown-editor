@@ -3,12 +3,16 @@ package renderer
 import (
 	"bytes"
 	"fmt"
+	"gitwiki/internal/git"
+	"gitwiki/internal/store"
+	"gitwiki/internal/toolbox"
+	"gitwiki/internal/toolbox/list"
+	"gitwiki/internal/toolbox/table"
 	"html"
 	"regexp"
 	"strings"
 
-	"gitwiki/internal/toolbox"
-
+	"github.com/gin-gonic/gin"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
 )
@@ -17,13 +21,23 @@ type Renderer struct {
 	Tools []toolbox.Tool
 }
 
-func NewRenderer() *Renderer {
+func NewRenderer(store store.Store, vcs git.VCS) *Renderer {
 	r := &Renderer{}
 	r.Tools = []toolbox.Tool{
-		&toolbox.ListTool{},
-		&toolbox.TableTool{},
+		&list.ListTool{},
+		table.NewTableTool(store, vcs),
 	}
 	return r
+}
+
+func (r *Renderer) RegisterToolRoutes(rg *gin.RouterGroup) {
+	for _, tool := range r.Tools {
+		if tool, ok := tool.(interface {
+			RegisterRoutes(rg *gin.RouterGroup)
+		}); ok {
+			tool.RegisterRoutes(rg)
+		}
+	}
 }
 
 func (r *Renderer) Render(content []byte, currentFile string) string {

@@ -34,7 +34,7 @@ func (co *Controller) HandleIndex(c *gin.Context) {
 
 	toolboxHtml := ""
 	for _, tool := range co.Renderer.Tools {
-		toolboxHtml += tool.GetButton(f, co.Templates)
+		toolboxHtml += tool.GetButton(f)
 	}
 
 	tmpl := co.Templates.Lookup("index.html")

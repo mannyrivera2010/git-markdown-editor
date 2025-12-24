@@ -1,4 +1,4 @@
-package toolbox
+package list
 
 import (
 	"bytes"
@@ -17,7 +17,11 @@ func (t *ListTool) Name() string {
 	return "list"
 }
 
-func (t *ListTool) GetButton(currentFile string, tmpl *template.Template) string {
+func (t *ListTool) GetButton(currentFile string) string {
+	tmpl, err := template.ParseFiles("internal/toolbox/list/list_button.html")
+	if err != nil {
+		return ""
+	}
 	var b bytes.Buffer
 	tmpl.ExecuteTemplate(&b, "list_button.html", currentFile)
 	return b.String()
@@ -42,3 +46,4 @@ func (t *ListTool) Render(content []byte, currentFile string) string {
 	md.Convert([]byte(text), &buf)
 	return buf.String()
 }
+
