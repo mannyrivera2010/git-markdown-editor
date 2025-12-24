@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-const shadowFileName = "shadow_file"
+const shadowFileName = "../../shadow_file"
 
 type AuthService struct{}
 

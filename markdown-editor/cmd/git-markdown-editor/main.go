@@ -36,7 +36,7 @@ type Server struct {
 
 func main() {
 	store := &store.FileStore{}
-	vcs := &git.GitVCS{File: "."}
+	vcs := &git.GitVCS{File: "../../"}
 	renderer := renderer.NewRenderer()
 	auth := &auth.AuthService{}
 	if err := store.Init(); err == nil {
@@ -44,14 +44,14 @@ func main() {
 	}
 	auth.Init()
 	// Ensure the uploads directory exists
-	if err := os.MkdirAll("static/uploads", 0755); err != nil {
+	if err := os.MkdirAll("../../static/uploads", 0755); err != nil {
 		log.Fatalf("Failed to create uploads directory: %v", err)
 	}
-	templates := template.Must(template.ParseGlob("templates/*.html"))
+	templates := template.Must(template.ParseGlob("../../templates/*.html"))
 	srv := &Server{Store: store, VCS: vcs, Renderer: renderer, Auth: auth, templates: templates}
 
 	r := gin.Default()
-	r.Static("/static", "./static")
+	r.Static("/static", "../../static")
 	r.GET("/login", srv.handleLogin)
 	r.POST("/login", srv.handleLogin)
 	r.GET("/logout", srv.handleLogout)
