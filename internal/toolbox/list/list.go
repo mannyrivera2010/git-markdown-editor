@@ -28,7 +28,7 @@ func (t *ListTool) GetButton(currentFile string) string {
 }
 
 func (t *ListTool) GetInitialMarkdown() string {
-	return "\n\n```list\n- [ ] Item\n```\n"
+	return "```list\n```\n"
 }
 
 func (t *ListTool) Render(content []byte, currentFile string) string {

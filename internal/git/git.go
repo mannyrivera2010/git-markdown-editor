@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// TODO
 type VCS interface {
 	Init() error
 	Commit(msg string) error

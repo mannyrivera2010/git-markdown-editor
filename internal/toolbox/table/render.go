@@ -23,7 +23,7 @@ func (r *Renderer) GetButton(currentFile string) string {
 }
 
 func (r *Renderer) GetInitialMarkdown() string {
-	return "\n\n```table\n| A | B |\n|---|---|\n| 1 | 2 |\n```\n"
+	return "```table\n```\n"
 }
 
 func (r *Renderer) Render(content []byte, currentFile string) string {
