@@ -11,26 +11,26 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (co *Controller) HandleInsert(c *gin.Context) {
-	f := co.GetFile(c)
+func (controller *Controller) HandleInsert(c *gin.Context) {
+	f := controller.GetFile(c)
 	k := c.PostForm("kind")
 	var t string
-	for _, tool := range co.Renderer.Tools {
+	for _, tool := range controller.Renderer.Tools {
 		if tool.Name() == k {
 			t = tool.GetInitialMarkdown()
 			break
 		}
 	}
 	if t != "" {
-		co.Store.AppendText(f, t)
-		co.VCS.Commit("Ins " + k)
+		controller.Store.AppendText(f, t)
+		controller.VCS.Commit("Ins " + k)
 	}
-	co.RenderResponse(c, f)
+	controller.RenderResponse(c, f)
 }
 
-func (co *Controller) HandleRaw(c *gin.Context) {
-	f := co.GetFile(c)
-	content, _ := co.Store.Read(f)
+func (controller *Controller) HandleRaw(c *gin.Context) {
+	f := controller.GetFile(c)
+	content, _ := controller.Store.Read(f)
 	data := struct {
 		File    string
 		Content string
@@ -38,47 +38,47 @@ func (co *Controller) HandleRaw(c *gin.Context) {
 		File:    f,
 		Content: string(content),
 	}
-	co.Templates.ExecuteTemplate(c.Writer, "raw_editor.html", data)
+	controller.Templates.ExecuteTemplate(c.Writer, "raw_editor.html", data)
 }
 
-func (co *Controller) HandleRawSave(c *gin.Context) {
-	f := co.GetFile(c)
-	co.Store.WriteRaw(f, []byte(c.PostForm("content")))
-	co.VCS.Commit("Raw Edit")
-	co.RenderResponse(c, f)
+func (controller *Controller) HandleRawSave(c *gin.Context) {
+	f := controller.GetFile(c)
+	controller.Store.WriteRaw(f, []byte(c.PostForm("content")))
+	controller.VCS.Commit("Raw Edit")
+	controller.RenderResponse(c, f)
 }
 
-func (co *Controller) HandleAdd(c *gin.Context) {
-	f := co.GetFile(c)
-	co.Store.Add(f, c.PostForm("task"))
-	co.VCS.Commit("Add to " + f)
-	co.RenderResponse(c, f)
+func (controller *Controller) HandleAdd(c *gin.Context) {
+	f := controller.GetFile(c)
+	controller.Store.Add(f, c.PostForm("task"))
+	controller.VCS.Commit("Add to " + f)
+	controller.RenderResponse(c, f)
 }
 
-func (co *Controller) HandleToggle(c *gin.Context) {
-	f := co.GetFile(c)
+func (controller *Controller) HandleToggle(c *gin.Context) {
+	f := controller.GetFile(c)
 	i, _ := strconv.Atoi(c.PostForm("line"))
-	co.Store.Toggle(f, i)
-	co.VCS.Commit("Tog in " + f)
-	co.RenderResponse(c, f)
+	controller.Store.Toggle(f, i)
+	controller.VCS.Commit("Tog in " + f)
+	controller.RenderResponse(c, f)
 }
 
-func (co *Controller) HandleDelete(c *gin.Context) {
-	f := co.GetFile(c)
+func (controller *Controller) HandleDelete(c *gin.Context) {
+	f := controller.GetFile(c)
 	i, _ := strconv.Atoi(c.PostForm("line"))
-	co.Store.Delete(f, i)
-	co.VCS.Commit("Del in " + f)
-	co.RenderResponse(c, f)
+	controller.Store.Delete(f, i)
+	controller.VCS.Commit("Del in " + f)
+	controller.RenderResponse(c, f)
 }
 
-func (co *Controller) HandleArchive(c *gin.Context) {
-	f := co.GetFile(c)
-	co.Store.Archive(f)
-	co.VCS.Commit("Arc in " + f)
-	co.RenderResponse(c, f)
+func (controller *Controller) HandleArchive(c *gin.Context) {
+	f := controller.GetFile(c)
+	controller.Store.Archive(f)
+	controller.VCS.Commit("Arc in " + f)
+	controller.RenderResponse(c, f)
 }
 
-func (co *Controller) HandleUpload(c *gin.Context) {
+func (controller *Controller) HandleUpload(c *gin.Context) {
 	file, handler, err := c.Request.FormFile("image")
 	if err != nil {
 		fmt.Printf("Error Retrieving the File: %v\n", err)
@@ -113,19 +113,19 @@ func (co *Controller) HandleUpload(c *gin.Context) {
 		return
 	}
 
-	f := co.GetFile(c)
+	f := controller.GetFile(c)
 	// The path for the markdown should be relative to the web root, so /static/uploads/filename
 	markdownImagePath := filepath.Join("/static", "uploads", filename)
-	co.Store.AppendText(f, fmt.Sprintf("\n![](%s)\n", markdownImagePath))
-	co.VCS.Commit("Add image: " + filename)
-	co.RenderResponse(c, f)
+	controller.Store.AppendText(f, fmt.Sprintf("\n![](%s)\n", markdownImagePath))
+	controller.VCS.Commit("Add image: " + filename)
+	controller.RenderResponse(c, f)
 }
 
-func (co *Controller) RenderResponse(c *gin.Context, f string) {
-	content, _ := co.Store.Read(f)
+func (controller *Controller) RenderResponse(c *gin.Context, f string) {
+	content, _ := controller.Store.Read(f)
 	if c.GetHeader("HX-Request") == "true" {
-		c.Writer.Write([]byte(co.Renderer.Render(content, f) + co.Renderer.RenderHistory(func() []string {
-			l, _ := co.VCS.Log()
+		c.Writer.Write([]byte(controller.Renderer.Render(content, f) + controller.Renderer.RenderHistory(func() []string {
+			l, _ := controller.VCS.Log()
 			return l
 		}())))
 	} else {

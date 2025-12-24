@@ -13,33 +13,33 @@ const (
 	defaultFile = "todo.md"
 )
 
-func (co *Controller) RootHandler(c *gin.Context) {
+func (controller *Controller) RootHandler(c *gin.Context) {
 	// a regex that matches any path ending in .md
 	re := regexp.MustCompile(`\.md$`)
 	if re.MatchString(c.Request.URL.Path) || c.Request.URL.Path == "/" {
-		co.HandleIndex(c)
+		controller.HandleIndex(c)
 	} else {
 		c.Status(http.StatusNotFound)
 	}
 }
 
-func (co *Controller) HandleIndex(c *gin.Context) {
-	f := co.GetFile(c)
-	content, err := co.Store.Read(f)
+func (controller *Controller) HandleIndex(c *gin.Context) {
+	f := controller.GetFile(c)
+	content, err := controller.Store.Read(f)
 	if err != nil {
-		co.Store.CreateFile(f)
-		content, _ = co.Store.Read(f)
+		controller.Store.CreateFile(f)
+		content, _ = controller.Store.Read(f)
 	}
-	l, _ := co.VCS.Log()
-	files, _ := co.Store.GetFileTree(false)
+	l, _ := controller.VCS.Log()
+	files, _ := controller.Store.GetFileTree(false)
 
 	toolboxHtml := ""
-	for _, tool := range co.Renderer.Tools {
+	for _, tool := range controller.Renderer.Tools {
 		toolboxHtml += tool.GetButton(f)
 	}
 
-	tmpl := co.Templates.Lookup("index.html")
-	renderedContent := co.Renderer.Render(content, f)
+	tmpl := controller.Templates.Lookup("index.html")
+	renderedContent := controller.Renderer.Render(content, f)
 
 	tmpl.Execute(c.Writer, struct {
 		Body, FileTree, Toolbox template.HTML
@@ -47,32 +47,33 @@ func (co *Controller) HandleIndex(c *gin.Context) {
 		CurrentFile             string
 	}{
 		Body:        template.HTML(renderedContent),
-		FileTree:    template.HTML(co.Renderer.RenderFileTree(files, f)),
+		FileTree:    template.HTML(controller.Renderer.RenderFileTree(files, f)),
 		Toolbox:     template.HTML(toolboxHtml),
 		GitLogs:     l,
 		CurrentFile: f,
 	})
 }
-func (co *Controller) HandleFileTree(c *gin.Context) {
-	f := co.GetFile(c)
+
+func (controller *Controller) HandleFileTree(c *gin.Context) {
+	f := controller.GetFile(c)
 	rec := c.Query("recursive") == "true"
-	files, _ := co.Store.GetFileTree(rec)
-	c.Writer.Write([]byte(co.Renderer.RenderFileTree(files, f)))
+	files, _ := controller.Store.GetFileTree(rec)
+	c.Writer.Write([]byte(controller.Renderer.RenderFileTree(files, f)))
 }
 
-func (co *Controller) HandleFileCreate(c *gin.Context) {
-	co.Store.CreateFile(c.PostForm("filename"))
-	co.VCS.Commit("New File")
-	co.RenderTreeOnly(c)
+func (controller *Controller) HandleFileCreate(c *gin.Context) {
+	controller.Store.CreateFile(c.PostForm("filename"))
+	controller.VCS.Commit("New File")
+	controller.RenderTreeOnly(c)
 }
 
-func (co *Controller) HandleFileDelete(c *gin.Context) {
-	co.Store.DeleteFile(c.PostForm("name"))
-	co.VCS.Commit("Del File")
-	co.RenderTreeOnly(c)
+func (controller *Controller) HandleFileDelete(c *gin.Context) {
+	controller.Store.DeleteFile(c.PostForm("name"))
+	controller.VCS.Commit("Del File")
+	controller.RenderTreeOnly(c)
 }
 
-func (co *Controller) GetFile(c *gin.Context) string {
+func (controller *Controller) GetFile(c *gin.Context) string {
 	f := c.Param("file")
 	if f != "" && strings.HasSuffix(f, ".md") {
 		return f
@@ -87,7 +88,7 @@ func (co *Controller) GetFile(c *gin.Context) string {
 	return f
 }
 
-func (co *Controller) RenderTreeOnly(c *gin.Context) {
-	files, _ := co.Store.GetFileTree(false)
-	c.Writer.Write([]byte(co.Renderer.RenderFileTree(files, co.GetFile(c))))
+func (controller *Controller) RenderTreeOnly(c *gin.Context) {
+	files, _ := controller.Store.GetFileTree(false)
+	c.Writer.Write([]byte(controller.Renderer.RenderFileTree(files, controller.GetFile(c))))
 }

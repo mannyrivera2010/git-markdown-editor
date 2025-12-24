@@ -6,16 +6,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (co *Controller) HandleLogin(c *gin.Context) {
+func (controller *Controller) HandleLogin(c *gin.Context) {
 	if c.Request.Method == "GET" {
 		msg := ""
 		if c.Query("login") == "failed" {
 			msg = "Invalid"
 		}
-		co.Templates.ExecuteTemplate(c.Writer, "login.html", msg)
+		controller.Templates.ExecuteTemplate(c.Writer, "login.html", msg)
 		return
 	}
-	if c.Request.Method == "POST" && co.Auth.Authenticate(c.PostForm("username"), c.PostForm("password")) {
+	if c.Request.Method == "POST" && controller.Auth.Authenticate(c.PostForm("username"), c.PostForm("password")) {
 		c.SetCookie("session_token", "logged-in", 3600*24, "/", "", false, true)
 		c.Redirect(http.StatusFound, "/")
 	} else {
@@ -23,12 +23,12 @@ func (co *Controller) HandleLogin(c *gin.Context) {
 	}
 }
 
-func (co *Controller) HandleLogout(c *gin.Context) {
+func (controller *Controller) HandleLogout(c *gin.Context) {
 	c.SetCookie("session_token", "", -1, "/", "", false, true)
 	c.Redirect(http.StatusFound, "/login")
 }
 
-func (co *Controller) Protect() gin.HandlerFunc {
+func (controller *Controller) Protect() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		cookie, err := c.Cookie("session_token")
 		if err != nil || cookie != "logged-in" {
