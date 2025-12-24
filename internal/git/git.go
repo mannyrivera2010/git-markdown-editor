@@ -6,6 +6,7 @@ import (
 )
 
 // TODO
+
 type VCS interface {
 	Init() error
 	Commit(msg string) error
@@ -14,6 +15,7 @@ type VCS interface {
 	Log() ([]string, error)
 	DiffLast() (string, error)
 }
+
 type GitVCS struct{ File string }
 
 func (g *GitVCS) Init() error {
