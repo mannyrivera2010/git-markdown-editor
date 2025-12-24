@@ -9,7 +9,7 @@ import (
 )
 
 type Renderer struct {
-	Store store.Store // Needed for renderTable when reconstructing the table after a delete
+	Store store.Store
 }
 
 func (r *Renderer) GetButton(currentFile string) string {
@@ -43,6 +43,7 @@ type TemplateData struct {
 	Rows        []Row
 	CurrentFile string
 }
+
 type Row struct {
 	Cells []string
 }

@@ -280,6 +280,7 @@ func (s *FileStore) locateTable(lines []string) (start, end int, rows []int) {
 	}
 	return
 }
+
 func (s *FileStore) mapTableLines(lines []string, mapper func(string, []string) []string) []string {
 	inTable, rowIdx := false, 0
 	for i, line := range lines {
@@ -309,6 +310,7 @@ func (s *FileStore) mapTableLines(lines []string, mapper func(string, []string) 
 	}
 	return lines
 }
+
 func (s *FileStore) findRealIndex(lines []string, targetIdx int) int {
 	listCount, inListBlock := 0, false
 	for i, line := range lines {

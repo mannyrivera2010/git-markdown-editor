@@ -1,10 +1,5 @@
 package store
 
-// This import is needed if NewFileStore is in a separate package within store
-// If it's in the same package (i.e., file_store.go is in internal/store), this import is not needed.
-// For now, assuming it's in the same package.
-// If it were in a subpackage like internal/store/filestore, then it would be "gitwiki/internal/store/filestore"
-
 type Store interface {
 	Init() error
 	Read(path string) ([]byte, error)

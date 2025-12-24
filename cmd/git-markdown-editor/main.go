@@ -24,6 +24,7 @@ func main() {
 	vcs := &git.GitVCS{File: "."}
 	renderer := renderer.NewRenderer(store, vcs)
 	auth := &auth.AuthService{}
+
 	if err := store.Init(); err == nil {
 		vcs.Init()
 	}
@@ -37,6 +38,7 @@ func main() {
 
 	r := gin.Default()
 	r.Static("/static", "internal/ui/static")
+
 	r.GET("/login", co.HandleLogin)
 	r.POST("/login", co.HandleLogin)
 	r.GET("/logout", co.HandleLogout)
