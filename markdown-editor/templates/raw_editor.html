@@ -1,0 +1,10 @@
+<form hx-post="/raw/save" hx-vals='{"file": "{{.File}}"}' hx-target="#workspace" hx-swap="innerHTML" class="h-full flex flex-col">
+    <div class="flex justify-between items-center mb-2">
+        <h2 class="font-bold text-gray-700">Editing: {{.File}}</h2>
+        <div class="space-x-2">
+            <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded" hx-get="/{{.File}}" hx-target="body">Cancel</button>
+            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded">Render</button>
+        </div>
+    </div>
+    <textarea name="content" class="flex-grow w-full p-4 font-mono text-sm border rounded bg-gray-50 focus:outline-none h-96">{{.Content}}</textarea>
+</form>
