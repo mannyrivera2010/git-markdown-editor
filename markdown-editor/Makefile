@@ -1,56 +1,83 @@
-# Makefile for the Git Markdown Editor
-#
-# This Makefile contains commands for building, running, testing, and cleaning the application.
+# ==============================================================================
+#  CONFIGURATION
+# ==============================================================================
+APP_NAME    := my-app
+DIST_DIR    := dist
 
-.PHONY: build run test clean fmt lint
+# Paths for Go
+# Point to the MAIN entry point folder
+GO_ENTRY    := ./cmd/git-markdown-editor
+GO_FILES    := .
+
+# Paths for Tailwind (Moved into internal/ui)
+TW_BINARY   := tailwindcss
+INPUT_CSS   := internal/ui/assets/input.css
+OUTPUT_CSS  := internal/ui/assets/output.css
 
 # ==============================================================================
-# Variables
+#  SYSTEM DETECTION (Linux/Mac/Windows)
 # ==============================================================================
+UNAME_S := $(shell uname -s)
+OS      := linux
+EXT     := 
 
-APP_NAME := git-markdown-editor
-CMD_DIR := .
-INTERNAL_DIR := ./internal
+ifeq ($(UNAME_S),Darwin)
+	OS := macos
+endif
+ifneq (,$(findstring MINGW,$(UNAME_S)))
+	OS := windows
+	EXT := .exe
+endif
 
-# ==============================================================================
-# Build and Run
-# ==============================================================================
+ARCH_RAW := $(shell uname -m)
+ARCH     := x64
+ifeq ($(ARCH_RAW),aarch64)
+	ARCH := arm64
+endif
+ifeq ($(ARCH_RAW),arm64)
+	ARCH := arm64
+endif
 
-# Build the application
-build:
-	@echo "Building $(APP_NAME)..."
-	@go build -o $(APP_NAME) $(CMD_DIR)
-
-# Run the application
-run: 
-	@echo "Running $(APP_NAME)..."
-	@./$(APP_NAME)
-
-# ==============================================================================
-# Testing and Code Quality
-# ==============================================================================
-
-# Run the tests
-test:
-	@echo "Running tests..."
-	@go test ../../...
-
-# Format the code
-fmt:
-	@echo "Formatting code..."
-	@go fmt ../../...
-
-# Lint the code
-lint:
-	@echo "Linting code... (requires golangci-lint)"
-	@golangci-lint run ../../... || true # Allow lint to fail without stopping build
+DOWNLOAD_URL := https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-$(OS)-$(ARCH)$(EXT)
+BINARY_FILE  := $(TW_BINARY)$(EXT)
 
 # ==============================================================================
-# Cleanup
+#  TARGETS
 # ==============================================================================
+.PHONY: all install dev run watch prod-embed clean
 
-# Clean up the build artifacts
+all: prod-embed
+
+install:
+	 @echo "⬇️  Downloading Tailwind..."
+	 @curl -sL -o $(BINARY_FILE) $(DOWNLOAD_URL)
+	 @chmod +x $(BINARY_FILE)
+
+# --- Development ---
+dev:
+	 @echo "🚀 Starting Dev Mode (cmd/server)..."
+	 @$(MAKE) -j2 watch run
+
+watch:
+	 @./$(BINARY_FILE) -i $(INPUT_CSS) -o $(OUTPUT_CSS) --watch
+
+run:
+	 @go run $(GO_ENTRY)
+
+# --- Production (Embedded) ---
+prod-embed: clean build-css
+	 @echo "📦 Building Single Embedded Binary..."
+	 @mkdir -p $(DIST_DIR)
+	
+	# We build the package at ./cmd/server
+	 @GOTOOLCHAIN=auto go build -ldflags="-w -s" -o $(DIST_DIR)/$(APP_NAME)$(EXT) $(GO_ENTRY)
+	
+	 @echo "✅ Build complete: ./$(DIST_DIR)/$(APP_NAME)$(EXT)"
+
+build-css:
+	 @echo "🎨 Minifying CSS..."
+	 @./$(BINARY_FILE) -i $(INPUT_CSS) -o $(OUTPUT_CSS) --minify
+
 clean:
-	@echo "Cleaning up..."
-	@rm -f $(APP_NAME)
-	@go clean
+	 @rm -rf $(DIST_DIR)
+	 @rm -f $(BINARY_FILE)

@@ -21,7 +21,7 @@ const (
 
 func main() {
 	store := &store.FileStore{}
-	vcs := &git.GitVCS{File: "../../"}
+	vcs := &git.GitVCS{File: "."}
 	renderer := renderer.NewRenderer()
 	auth := &auth.AuthService{}
 	if err := store.Init(); err == nil {
@@ -29,14 +29,14 @@ func main() {
 	}
 	auth.Init()
 	// Ensure the uploads directory exists
-	if err := os.MkdirAll("../../static/uploads", 0755); err != nil {
+	if err := os.MkdirAll("internal/ui/static/uploads", 0755); err != nil {
 		log.Fatalf("Failed to create uploads directory: %v", err)
 	}
-	templates := template.Must(template.ParseGlob("../../templates/*.html"))
+	templates := template.Must(template.ParseGlob("internal/ui/templates/*.html"))
 	co := &controllers.Controller{Store: store, VCS: vcs, Renderer: renderer, Auth: auth, Templates: templates}
 
 	r := gin.Default()
-	r.Static("/static", "../../static")
+	r.Static("/static", "internal/ui/static")
 	r.GET("/login", co.HandleLogin)
 	r.POST("/login", co.HandleLogin)
 	r.GET("/logout", co.HandleLogout)
