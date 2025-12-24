@@ -127,7 +127,7 @@ func (co *Controller) RenderResponse(c *gin.Context, f string) {
 		c.Writer.Write([]byte(co.Renderer.Render(content, f) + co.Renderer.RenderHistory(func() []string {
 			l, _ := co.VCS.Log()
 			return l
-		}()))) 
+		}())))
 	} else {
 		c.Redirect(http.StatusFound, "/"+f)
 	}

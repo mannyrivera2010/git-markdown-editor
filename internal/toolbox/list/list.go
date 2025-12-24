@@ -46,4 +46,3 @@ func (t *ListTool) Render(content []byte, currentFile string) string {
 	md.Convert([]byte(text), &buf)
 	return buf.String()
 }
-
