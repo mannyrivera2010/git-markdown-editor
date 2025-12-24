@@ -29,7 +29,7 @@ func main() {
 	}
 	auth.Init()
 	// Ensure the uploads directory exists
-	if err := os.MkdirAll("internal/ui/static/uploads", 0755); err != nil {
+	if err := os.MkdirAll("uploads", 0755); err != nil {
 		log.Fatalf("Failed to create uploads directory: %v", err)
 	}
 	templates := template.Must(template.ParseGlob("internal/ui/templates/*.html"))
