@@ -24,6 +24,7 @@ func (a *AuthService) Init() error {
 	}
 	return nil
 }
+
 func (a *AuthService) Authenticate(username, password string) bool {
 	file, err := os.Open(shadowFileName)
 	if err != nil {
@@ -46,5 +47,13 @@ func (a *AuthService) Authenticate(username, password string) bool {
 	}
 	return false
 }
-func generateSalt() []byte                   { b := make([]byte, 16); rand.Read(b); return b }
-func hashPassword(p string, s []byte) []byte { return argon2.IDKey([]byte(p), s, 1, 64*1024, 4, 32) }
+
+func generateSalt() []byte {
+	b := make([]byte, 16)
+	rand.Read(b)
+	return b
+}
+
+func hashPassword(p string, s []byte) []byte { 
+	return argon2.IDKey([]byte(p), s, 1, 64*1024, 4, 32) 
+}
