@@ -22,6 +22,7 @@ func (co *Controller) RootHandler(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 	}
 }
+
 func (co *Controller) HandleIndex(c *gin.Context) {
 	f := co.GetFile(c)
 	content, err := co.Store.Read(f)
@@ -85,6 +86,7 @@ func (co *Controller) GetFile(c *gin.Context) string {
 	}
 	return f
 }
+
 func (co *Controller) RenderTreeOnly(c *gin.Context) {
 	files, _ := co.Store.GetFileTree(false)
 	c.Writer.Write([]byte(co.Renderer.RenderFileTree(files, co.GetFile(c))))

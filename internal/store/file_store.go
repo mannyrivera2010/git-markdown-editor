@@ -18,11 +18,12 @@ func NewFileStore() *FileStore {
 func (s *FileStore) Init() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if _, err := os.Stat("todo.md"); os.IsNotExist(err) {
-		return ioutil.WriteFile("todo.md", []byte("# My Wiki\n\nWelcome.\nUse the **Toolbox** on the left to add features.\n"), 0644)
-	}
+	// if _, err := os.Stat("todo.md"); os.IsNotExist(err) {
+	// 	return ioutil.WriteFile("todo.md", []byte("# My Wiki\n\nWelcome.\nUse the **Toolbox** on the left to add features.\n"), 0644)
+	// }
 	return nil
 }
+
 func (s *FileStore) Read(path string) ([]byte, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -31,6 +32,7 @@ func (s *FileStore) Read(path string) ([]byte, error) {
 	}
 	return ioutil.ReadFile(path)
 }
+
 func (s *FileStore) WriteRaw(path string, content []byte) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -39,6 +41,7 @@ func (s *FileStore) WriteRaw(path string, content []byte) error {
 	}
 	return ioutil.WriteFile(path, content, 0644)
 }
+
 func (s *FileStore) AppendText(path, text string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -50,6 +53,7 @@ func (s *FileStore) AppendText(path, text string) error {
 	_, err = f.WriteString(text)
 	return err
 }
+
 func (s *FileStore) Add(path, task string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -76,6 +80,7 @@ func (s *FileStore) Add(path, task string) error {
 	}
 	return s.writeLines(path, lines)
 }
+
 func (s *FileStore) Toggle(path string, index int) error {
 	return s.processLine(path, index, func(l string) string {
 		if strings.Contains(l, "[ ]") {
@@ -84,6 +89,7 @@ func (s *FileStore) Toggle(path string, index int) error {
 		return strings.Replace(l, "[x]", "[ ]", 1)
 	})
 }
+
 func (s *FileStore) Delete(path string, index int) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -95,6 +101,7 @@ func (s *FileStore) Delete(path string, index int) error {
 	}
 	return nil
 }
+
 func (s *FileStore) Archive(path string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -116,6 +123,7 @@ func (s *FileStore) Archive(path string) error {
 	}
 	return s.writeLines(path, newLines)
 }
+
 func (s *FileStore) TableAddColumn(path, header string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -134,6 +142,7 @@ func (s *FileStore) TableAddColumn(path, header string) error {
 	})
 	return s.writeLines(path, newLines)
 }
+
 func (s *FileStore) TableAddRow(path string, data []string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -162,6 +171,7 @@ func (s *FileStore) TableAddRow(path string, data []string) error {
 	}
 	return nil
 }
+
 func (s *FileStore) TableRemoveRow(path string, rowIndex int) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -174,6 +184,7 @@ func (s *FileStore) TableRemoveRow(path string, rowIndex int) error {
 	}
 	return nil
 }
+
 func (s *FileStore) TableEditCell(path string, row, col int, value string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -190,6 +201,7 @@ func (s *FileStore) TableEditCell(path string, row, col int, value string) error
 	}
 	return nil
 }
+
 func (s *FileStore) GetFileTree(recursive bool) ([]string, error) {
 	var files []string
 	root := "."
@@ -213,6 +225,7 @@ func (s *FileStore) GetFileTree(recursive bool) ([]string, error) {
 	}
 	return files, nil
 }
+
 func (s *FileStore) CreateFile(name string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -228,6 +241,7 @@ func (s *FileStore) CreateFile(name string) error {
 	}
 	return ioutil.WriteFile(name, []byte(fmt.Sprintf("# %s\n\nLinked.\n", name)), 0644)
 }
+
 func (s *FileStore) DeleteFile(path string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -236,13 +250,16 @@ func (s *FileStore) DeleteFile(path string) error {
 	}
 	return os.Remove(path)
 }
+
 func (s *FileStore) readLines(path string) ([]string, error) {
 	c, _ := ioutil.ReadFile(path)
 	return strings.Split(string(c), "\n"), nil
 }
+
 func (s *FileStore) writeLines(path string, l []string) error {
 	return ioutil.WriteFile(path, []byte(strings.Join(l, "\n")), 0644)
 }
+
 func (s *FileStore) locateTable(lines []string) (start, end int, rows []int) {
 	inTable := false
 	start = -1
@@ -313,6 +330,7 @@ func (s *FileStore) findRealIndex(lines []string, targetIdx int) int {
 	}
 	return -1
 }
+
 func (s *FileStore) processLine(path string, targetIdx int, modifier func(string) string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
